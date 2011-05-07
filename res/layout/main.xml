@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/tableLayout1"
+	android:background="#ffffff" android:layout_width="320px"
+	android:layout_height="320px" xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:text="Salut le monde !" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+</LinearLayout>
+
