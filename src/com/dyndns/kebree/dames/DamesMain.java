@@ -9,6 +9,12 @@ import com.dyndns.kebree.dames.model.Piece.Color;
 import com.dyndns.kebree.dames.view.GridView;
 import com.dyndns.kebree.dames.view.Player;
 
+/**
+ * Main classe. Create the main objects. May be modifiable
+ * 
+ * @author Kal
+ *
+ */
 public class DamesMain extends Activity {
     /** Called when the activity is first created. */
     @Override
