@@ -17,7 +17,7 @@ public class DamesMain extends Activity {
         //setContentView(R.layout.main);
         Grid model = new Grid();
         DamesControl dc = new DamesControl(model);
-        Player player = new Player(Color.black);
+        Player player = new Player(Color.white);
         GridView gv = new GridView(this, dc, player, model);
         model.addController(dc);
         dc.addView(gv);
