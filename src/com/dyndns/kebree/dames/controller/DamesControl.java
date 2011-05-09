@@ -37,4 +37,7 @@ public class DamesControl {
 			gv.gridChanged();
 		}
 	}
+	public int[] getMovable(int idTail) {
+		return model.getMovable(idTail);		
+	}
 }

@@ -56,6 +56,13 @@ public class GridView extends View{
 						}
 						v.setBackgroundColor(Color.RED);
 						select=idTail;
+						int colored[] = dcontrol.getMovable(idTail);
+						if(colored[0] != -1){
+							tabBut[colored[0]].setBackgroundColor(Color.YELLOW);
+						}
+						if(colored[1] != -1){
+							tabBut[colored[1]].setBackgroundColor(Color.YELLOW);
+						}
 					} else if(dcontrol.selectable(idTail,com.dyndns.kebree.dames.model.Piece.Color.none) && select != -1){
 						dcontrol.movePiece(select,idTail);
 					}
