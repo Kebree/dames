@@ -44,24 +44,41 @@ public class Grid {
 	}
 	
 	private boolean isLPaire(int tail){
-		return (tail%10>5)?true:false;
+		return (tail%10>5 || tail%10==0)?true:false;
 	}
 
 	public boolean canMove(int select, int idTail) {
-		Log.i("i","selected : "+select+", Target : "+idTail);
-		if(grid[idTail].getColor() != Color.none)
+		select++;
+		idTail++;
+		int res = select%10;
+		Log.i("i","selected : "+select+", Target : "+idTail +", result : "+res);
+		if(grid[idTail-1].getColor() != Color.none){
+			Log.i("i","False 1");
 			return false;
+		}
 		if(grid[select].getColor() == Color.black){
 			if(!isLPaire(select)){
-				if(idTail != select+5 || idTail != select+6)
+				//odd lines (lignes impaires)
+				if(!(idTail == select+5 || idTail == select+6)){
+					// this is not a direct diagonal
+					Log.i("i","False 2");
 					return false;
-				//if(select % 10 == 5 && idTail == select+6)
-				//	return false;
+				}
+				if(select % 10 == 5 && idTail == select+6){
+					// border overflow
+					return false;
+				}
 			}else{
-				if(idTail != select+4 || idTail != select+5)
+				//even lines (lignes paires)
+				if(!(idTail == select+4 || idTail == select+5)){
+					// this is not a direct diagonal
+					Log.i("i","False 3");
 					return false;
-				//if(select % 10 == 5 && idTail == select+4)
-				//	return false;
+				}
+				if(select % 10 == 6 && idTail == select+4){
+					// border overflow
+					return false;
+				}
 			}
 		}
 		return true;
@@ -76,8 +93,13 @@ public class Grid {
 	public int[] getMovable(int idTail) {
 		int ret[] = new int[2];
 		if(grid[idTail].getColor() == Color.black){
-			ret[0] = (canMove(idTail, idTail+5))?idTail+5:-1;
-			ret[1] = (canMove(idTail, idTail+6))?idTail+6:-1;
+			if(isLPaire(idTail)){
+				ret[0] = (canMove(idTail, idTail+5))?idTail+5:-1;
+				ret[1] = (canMove(idTail, idTail+4))?idTail+4:-1;
+			} else {
+				ret[0] = (canMove(idTail, idTail+5))?idTail+5:-1;
+				ret[1] = (canMove(idTail, idTail+6))?idTail+6:-1;
+			}
 		} else if(grid[idTail].getColor() == Color.white){
 			ret[0] = (canMove(idTail, idTail-5))?idTail-5:-1;
 			ret[1] = (canMove(idTail, idTail-6))?idTail-6:-1;
