@@ -3,7 +3,6 @@ package com.dyndns.kebree.dames.controller;
 import java.util.ArrayList;
 
 import com.dyndns.kebree.dames.model.Grid;
-import com.dyndns.kebree.dames.model.Piece;
 import com.dyndns.kebree.dames.model.Piece.Color;
 import com.dyndns.kebree.dames.view.GridView;
 
