@@ -12,22 +12,22 @@ import com.dyndns.kebree.dames.R;
 import com.dyndns.kebree.dames.controller.DamesControl;
 import com.dyndns.kebree.dames.model.Grid;
 import com.dyndns.kebree.dames.model.Piece;
+import com.dyndns.kebree.dames.model.Player;
 
 public class GridView extends View{
 
 	private Activity act;
 	private DamesControl dcontrol;
 	private Grid model;
-	private Player player;
+	int colored[] = {-1, -1};
 	private int select=-1;
 	Button [] tabBut = new Button[50];
 
-	public GridView(Activity act, DamesControl dc, Player p, Grid model) {
+	public GridView(Activity act, DamesControl dc, Grid model) {
 		super(act);
 		this.act=act;
 		this.model = model;
 		dcontrol = dc;
-		player = p;
 	}
 
 	public View init(){
@@ -47,24 +47,51 @@ public class GridView extends View{
 				public void onClick(View v) {
 
 					int idTail = v.getId();
-					if(dcontrol.selectable(idTail, player.getColor())){
-						if(select != -1){
-							if(dcontrol.selectable(select, com.dyndns.kebree.dames.model.Piece.Color.white))
+					if(dcontrol.selectable(idTail, dcontrol.getPlayer().getColor())){
+						// a piece that belongs to the player
+						if(select == idTail){
+							if(colored[0] != -1)
+								tabBut[colored[0]].setBackgroundColor(Color.BLACK);
+							colored[0] = -1;
+							if(colored[1] != -1)
+								tabBut[colored[1]].setBackgroundColor(Color.BLACK);
+							colored[1] = -1;
+							if(dcontrol.getPlayer().getColor() == com.dyndns.kebree.dames.model.Piece.Color.white)
 								tabBut[select].setBackgroundResource(R.drawable.white);
-							else if(dcontrol.selectable(select, com.dyndns.kebree.dames.model.Piece.Color.black))
+							else 
 								tabBut[select].setBackgroundResource(R.drawable.black);
-						}
-						v.setBackgroundColor(Color.RED);
-						select=idTail;
-						int colored[] = dcontrol.getMovable(idTail);
-						if(colored[0] != -1){
-							tabBut[colored[0]].setBackgroundColor(Color.YELLOW);
-						}
-						if(colored[1] != -1){
-							tabBut[colored[1]].setBackgroundColor(Color.YELLOW);
+							select = -1;
+						}else{
+							if(select != -1){
+								//redraw
+								if(dcontrol.selectable(select, com.dyndns.kebree.dames.model.Piece.Color.white))
+									tabBut[select].setBackgroundResource(R.drawable.white);
+								else if(dcontrol.selectable(select, com.dyndns.kebree.dames.model.Piece.Color.black))
+									tabBut[select].setBackgroundResource(R.drawable.black);
+							}
+							if(colored[0] != -1){
+								tabBut[colored[0]].setBackgroundColor(Color.BLACK);
+								colored[0]=-1;
+							}
+							if(colored[1] != -1){
+								tabBut[colored[1]].setBackgroundColor(Color.BLACK);
+								colored[1]=-1;
+							}
+							v.setBackgroundColor(Color.RED);
+							select=idTail;
+							colored = dcontrol.getMovable(idTail);
+							if(colored[0] != -1){
+								tabBut[colored[0]].setBackgroundColor(Color.YELLOW);
+							}
+							if(colored[1] != -1){
+								tabBut[colored[1]].setBackgroundColor(Color.YELLOW);
+							}
 						}
 					} else if(dcontrol.selectable(idTail,com.dyndns.kebree.dames.model.Piece.Color.none) && select != -1){
 						dcontrol.movePiece(select,idTail);
+						colored[0]=-1;
+						colored[1]=-1;
+						select = -1;
 					}
 
 				}
@@ -103,6 +130,13 @@ public class GridView extends View{
 			else 
 				tabBut[i].setBackgroundColor(Color.BLACK);
 		}
-		
+
+	}
+
+	public void gameEnded() {
+		TextView t = new TextView(act);
+		t.setText("Partie Terminée");
+		act.setContentView(t);
+
 	}
 }
