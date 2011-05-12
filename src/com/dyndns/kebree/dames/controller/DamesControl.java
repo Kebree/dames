@@ -20,7 +20,7 @@ public class DamesControl {
 	private Grid model;
 	private Player[] players;
 	private int currentPlayer;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -33,7 +33,7 @@ public class DamesControl {
 		currentPlayer = 0;
 		this.model=model;
 	}
-	
+
 	/**
 	 * Adding a view linked with the controller
 	 * 
@@ -56,26 +56,20 @@ public class DamesControl {
 		}
 		return false;
 	}
-	
+
 	public boolean ended(int newSquare){
-		Color color = model.getPiece(newSquare).getColor();
-		Log.i("i", "color : "+color+", square : " + newSquare);
-		if(color == Color.black){
-			int[] diagBG = model.diagBG(newSquare);
-			if(model.canEat(newSquare, diagBG[1]))
-				return false;
-			int[] diagBD = model.diagBD(newSquare);
-			if(model.canEat(newSquare, diagBD[1]))
-				return false;
-		}
-		if(color == Color.white){
-			int[] diagHG = model.diagHG(newSquare);
-			if(model.canEat(newSquare, diagHG[1]))
-				return false;
-			int[] diagHD = model.diagHD(newSquare);
-			if(model.canEat(newSquare, diagHD[1]))
-				return false;
-		}
+		int[] diagBG = model.diagBG(newSquare);
+		if(model.canEat(newSquare, diagBG[1]))
+			return false;
+		int[] diagBD = model.diagBD(newSquare);
+		if(model.canEat(newSquare, diagBD[1]))
+			return false;
+		int[] diagHG = model.diagHG(newSquare);
+		if(model.canEat(newSquare, diagHG[1]))
+			return false;
+		int[] diagHD = model.diagHD(newSquare);
+		if(model.canEat(newSquare, diagHD[1]))
+			return false;
 		Log.i("i", "ended");
 		return true;
 	}
@@ -87,16 +81,16 @@ public class DamesControl {
 	 * @param newSquare the new square of the piece 
 	 */
 	public void movePiece(int select, int newSquare) {
-		if(model.canMove(select, newSquare)){
-			model.movePiece(select, newSquare);
-			currentPlayer = (currentPlayer+1)%2;
-		}else if(model.canEat(select, newSquare)){
+		if(model.canEat(select, newSquare)){
 			Log.i("i", "canEat ? : "+model.canEat(select, newSquare));
 			model.eatPiece(select, newSquare);
 			if(ended(newSquare))
 				currentPlayer = (currentPlayer+1)%2;
+		} else if(model.canMove(select, newSquare)){
+			model.movePiece(select, newSquare);
+			currentPlayer = (currentPlayer+1)%2;
 		}
-		
+
 	}
 
 	/**
@@ -107,17 +101,17 @@ public class DamesControl {
 			gv.gridChanged();
 		}
 	}
-	
+
 	/**
 	 * determine what are the square available for a movement
 	 * 
 	 * @param square initial position of the piece
 	 * @return an array with all available squares 
 	 */
-	public int[] getMovable(int square) {
+	public ArrayList<Integer> getMovable(int square) {
 		return model.getMovable(square);		
 	}
-	
+
 	public Player getPlayer(){
 		return players[currentPlayer];
 	}

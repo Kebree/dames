@@ -75,88 +75,14 @@ public class Grid {
 		return grid;
 	}
 
-	public boolean canMove(int oldSquare, int newSquare){
-		if(canMovePiece(oldSquare, newSquare))
-			return true;
-		return false;
-	}
 
-	public boolean canEat(int oldSquare, int newSquare){
-		if(canEatPiece(oldSquare, newSquare))
-			return true;
-		return false;
-	}
 	/**
 	 * 
 	 * @param square the square 
 	 * @return if the square is located on a add or even line
 	 */
 	private boolean isLPaire(int square){
-		if(((square%10)>5)||(square%10)==0){
-			return true;
-		}
-		return false;
-	}
-
-
-	/**
-	 * 
-	 * @param oldSquare the square where the piece is at the moment
-	 * @param newSquare the square where the piece will be located
-	 * @return if the piece cando the move
-	 */
-	public boolean canMovePiece(int oldSquare, int newSquare) {
-		if(newSquare>=0 && newSquare<50){
-			oldSquare++;
-			newSquare++;
-			if(grid[newSquare-1].getColor() != Color.none){
-				return false;
-			}
-			if(grid[oldSquare-1].getColor() == Color.black){
-				if(!isLPaire(oldSquare)){
-					//odd lines (lignes impaires)
-					if(!(newSquare == oldSquare+5 || newSquare == oldSquare+6)){
-						// this is not a direct diagonal
-						return false;
-					}
-					if(oldSquare % 10 == 5 && newSquare != oldSquare+5){
-						// border overflow
-						return false;
-					}
-				}else{
-					//even lines (lignes paires)
-					if(!(newSquare == oldSquare+4 || newSquare == oldSquare+5)){
-						// this is not a direct diagonal
-						return false;
-					}
-					if(oldSquare % 10 == 6 && newSquare != oldSquare+5){
-						// border overflow
-						return false;
-					}
-				}
-			} else {
-				if(!isLPaire(oldSquare)){
-					//odd lines (lignes impaires)
-					if(!(newSquare == oldSquare-5 || newSquare == oldSquare-4)){
-						// this is not a direct diagonal
-						return false;
-					}
-					if(oldSquare % 10 == 5 && newSquare != oldSquare-5){
-						// border overflow
-						return false;
-					}
-				}else{
-					//even lines (lignes paires)
-					if(!(newSquare == oldSquare-6 || newSquare == oldSquare-5)){
-						// this is not a direct diagonal
-						return false;
-					}
-					if(oldSquare % 10 == 6 && newSquare != oldSquare-5){
-						// border overflow
-						return false;
-					}
-				}
-			}
+		if(((square%10)>4)){
 			return true;
 		}
 		return false;
@@ -174,11 +100,13 @@ public class Grid {
 	private void diagHGRec(int square, int i, int[] ret){
 		if(i==8)
 			return;
+		if(square%10 == 5)
+			return;
 		if(square<0){
 			ret[i-1]=-1;
 			return;
 		}
-		if(isLPaire(square+1)){
+		if(isLPaire(square)){
 			ret[i]=square-6;
 			diagHGRec(square-6, ++i, ret);
 		}else{
@@ -199,11 +127,13 @@ public class Grid {
 	private void diagBDRec(int square, int i, int[] ret){
 		if(i==8)
 			return;
+		if(square%10 == 4)
+			return;
 		if(square>=50){
 			ret[i-1]=-1;
 			return;
 		}
-		if(isLPaire(square+1)){
+		if(isLPaire(square)){
 			ret[i]=square+5;
 			diagBDRec(square+5, ++i, ret);
 		}else{
@@ -224,6 +154,8 @@ public class Grid {
 	private void diagHDRec(int square, int i, int[] ret){
 		if(i==10)
 			return;
+		if(square%10 == 4)
+			return;
 		if(square<0){
 			ret[i-1]=-1;
 			if(i>3)
@@ -231,7 +163,7 @@ public class Grid {
 					ret[i-2]=-1;
 			return;
 		}
-		if(isLPaire(square+1)){
+		if(isLPaire(square)){
 			ret[i]=square-5;
 			diagHDRec(square-5, ++i, ret);
 		}else{
@@ -252,6 +184,8 @@ public class Grid {
 	private void diagBGRec(int square, int i, int[] ret){
 		if(i==10)
 			return;
+		if(square%10 == 5)
+			return;
 		if(square>=50){
 			ret[i-1]=-1;
 			if(i>3)
@@ -259,7 +193,7 @@ public class Grid {
 					ret[i-2]=-1;
 			return;
 		}
-		if(isLPaire(square+1)){
+		if(isLPaire(square)){
 			ret[i]=square+4;
 			diagBGRec(square+4, ++i, ret);
 		}else{
@@ -276,88 +210,79 @@ public class Grid {
 		return false;
 	}
 
-	public boolean canEatPiece(int oldSquare, int newSquare){
-		if(newSquare >= 0 && newSquare < 50){
-			if(grid[newSquare].getColor() != Color.none){
-				return false;
-			}
-			newSquare++;
-			oldSquare++;
-			if(grid[oldSquare-1].getColor()==Color.black){
-				int[] diag = diagBG(oldSquare-1);
-				if(!isIn(newSquare-1, diag))
-					diag=diagBD(oldSquare-1);		
-				if(grid[diag[0]].getColor() != Color.white){
-					return false;
-				}
-				if(newSquare != diag[1]+1)
-					//lateral move
-					return false;
-				if(isLPaire(oldSquare)){
-					// left grid edge 
-					if(oldSquare%10 == 6 && newSquare%10==5)
-						return false;
-					// right grid edge 
-					if(oldSquare%10==0 && newSquare%10 == 1)
-						return false;
-					// free arrival square
-					if(grid[newSquare-1].getColor() != Color.none)
-						return false;
-				}
-				else {
-					// ligne impaire (odd line)
-					// left grid edge 
-					if(oldSquare%10 == 1 && newSquare%10==0)
-						return false;
-					// right grid edge 
-					if(oldSquare%10==5 && newSquare%10 == 6)
-						return false;
-					// free arrival square
-					if(grid[newSquare-1].getColor() != Color.none)
-						return false;
-					//OK
-				}		
-			}
-			else if(grid[oldSquare-1].getColor()==Color.white){
-				int[] diag = diagHG(oldSquare-1);
-				if(!isIn(newSquare-1, diag))
-					diag=diagHD(oldSquare-1);		
-				if(grid[diag[0]].getColor() != Color.black) {
-					return false;
-				}
-				if(newSquare != diag[1]+1)
-					//lateral move
-					return false;
+	private int[] getDiag(int initSquare, int square){
+		int[] diag = diagHG(initSquare);
+		if(isIn(square, diag))
+			return diag;
 
-				if(isLPaire(oldSquare)){
-					// left grid edge 
-					if(oldSquare%10 == 6 && newSquare%10==5)
-						return false;
-					// right grid edge 
-					if(oldSquare%10==0 && newSquare%10 == 1)
-						return false;
-					// free arrival square
-					if(grid[newSquare-1].getColor() != Color.none)
-						return false;
-				}
-				else {
-					// ligne impaire (odd line)
-					// left grid edge 
-					if(oldSquare%10 == 1 && newSquare%10==0)
-						return false;
-					// right grid edge 
-					if(oldSquare%10==5 && newSquare%10 == 6)
-						return false;
-					// free arrival square
-					if(grid[newSquare-1].getColor() != Color.none)
-						return false;
-					//OK
-				}		
-			}
+		diag = diagBG(initSquare);
+		if(isIn(square, diag))
+			return diag;
 
+		diag = diagBD(initSquare);
+		if(isIn(square, diag))
+			return diag;
+
+		diag = diagHD(initSquare);
+		if(isIn(square, diag))
+			return diag;
+
+		return null;		
+	}
+
+
+	public boolean canMove(int oldSquare, int newSquare){
+		if(canMovePiece(oldSquare, newSquare))
 			return true;
-		}
 		return false;
+	}
+
+	public boolean canEat(int oldSquare, int newSquare){
+		if(canEatPiece(oldSquare, newSquare))
+			return true;
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param oldSquare the square where the piece is at the moment
+	 * @param newSquare the square where the piece will be located
+	 * @return if the piece cando the move
+	 */
+	public boolean canMovePiece(int oldSquare, int newSquare) {
+		int[] diag = getDiag(oldSquare, newSquare);
+		if(diag == null)
+			return false;
+		if(diag[0] == -1 || grid[diag[0]].getColor() != Color.none)
+			return false;
+		if(newSquare != diag[0])
+			return false;
+
+		return true;
+	}
+
+	public boolean canEatPiece(int oldSquare, int newSquare){		
+		int[] diag = getDiag(oldSquare, newSquare);
+		if(diag == null)
+			return false;
+
+		if(diag[0] == -1 || diag[1] == -1)
+			return false;
+
+		if(grid[diag[0]].getColor() == Color.none)
+			return false;
+
+		if(grid[oldSquare].getColor() == grid[diag[0]].getColor())
+			return false;
+
+		if(grid[diag[1]].getColor() != Color.none)
+			return false;
+
+		if(newSquare != diag[1])
+			return false;
+
+
+		return true;
 	}
 
 	/**
@@ -377,60 +302,34 @@ public class Grid {
 	 * @param square the origin square
 	 * @return all the square where the piece can move
 	 */
-	public int[] getMovable(int square) {
-		int ret[] = new int[2];
+	public ArrayList<Integer> getMovable(int square) {
+		ArrayList<Integer> ret = new ArrayList<Integer>();
+		int[] diagHG = diagHG(square);
+		int[] diagHD = diagHD(square);
+		int[] diagBG = diagBG(square);
+		int[] diagBD = diagBD(square);
+		if(canEat(square, diagHG[1]))
+			ret.add(diagHG[1]);
+		if(canEat(square, diagHD[1]))
+			ret.add(diagHD[1]);
+		if(canEat(square, diagBG[1]))
+			ret.add(diagBG[1]);
+		if(canEat(square, diagBD[1]))
+			ret.add(diagBD[1]);
+		if(!ret.isEmpty())
+			return ret;
 		if(grid[square].getColor() == Color.black){
-			if(isLPaire(square+1)){
-				ret[0] = (canMove(square, square+5))?square+5:-1;
-				ret[1] = (canMove(square, square+4))?square+4:-1;
-				if(square < 45){
-					if(ret[0] == -1 && grid[square+5].getColor() == Color.white){
-						ret[0] = (canEat(square, square+11))?square+11:-1;
-					}
-					if(ret[1] == -1 && grid[square+4].getColor() == Color.white){
-						ret[1] = (canEat(square, square+9))?square+9:-1;
-					}
-				}
-			} else {
-				ret[0] = (canMove(square, square+5))?square+5:-1;
-				ret[1] = (canMove(square, square+6))?square+6:-1;
-				if(square < 45){
-					if(ret[0] == -1 && grid[square+5].getColor() == Color.white){
-						ret[0] = (canEat(square, square+9))?square+9:-1;
-					}
-					if(ret[1] == -1 && grid[square+6].getColor() == Color.white){
-						ret[1] = (canEat(square, square+11))?square+11:-1;
-					}
-				}
-			}	
+			if(canMove(square, diagBG[0]))
+				ret.add(diagBG[0]);
+			if(canMove(square, diagBD[0]))
+				ret.add(diagBD[0]);
 		} else if(grid[square].getColor() == Color.white){
-			if(isLPaire(square+1)){
-				ret[0] = (canMove(square, square-5))?square-5:-1;
-				ret[1] = (canMove(square, square-6))?square-6:-1;
-				if(square > 5){
-					if(ret[0] == -1 && grid[square-5].getColor() == Color.black){
-						ret[0] = (canEat(square, square-9))?square-9:-1;
-					}
-					if(ret[1] == -1 && grid[square-6].getColor() == Color.black){
-						ret[1] = (canEat(square, square-11))?square-11:-1;
-					}
-				}
-			} else {
-				ret[0] = (canMove(square, square-5))?square-5:-1;
-				ret[1] = (canMove(square, square-4))?square-4:-1;
-				if(square > 5){
-					if(ret[0] == -1 && grid[square-5].getColor() == Color.black){
-						ret[0] = (canEat(square, square-11))?square-11:-1;
-					}
-					if(ret[1] == -1 && grid[square-4].getColor() == Color.black){
-						ret[1] = (canEat(square, square-9))?square-9:-1;
-					}
-				}
-			}
-		} else{
-			ret[0]=-1;
-			ret[1]=-1;			
+			if(canMove(square, diagHG[0]))
+				ret.add(diagHG[0]);
+			if(canMove(square, diagHD[0]))
+				ret.add(diagHD[0]);
 		}
+		
 		return ret;		
 	}
 
@@ -474,7 +373,7 @@ public class Grid {
 		grid[select] = new Piece();
 		grid[newSquare] = new Piece(color, type);	
 		gridChanged();	
-		
+
 	}
 
 }

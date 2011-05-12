@@ -1,5 +1,7 @@
 package com.dyndns.kebree.dames.view;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
@@ -12,14 +14,13 @@ import com.dyndns.kebree.dames.R;
 import com.dyndns.kebree.dames.controller.DamesControl;
 import com.dyndns.kebree.dames.model.Grid;
 import com.dyndns.kebree.dames.model.Piece;
-import com.dyndns.kebree.dames.model.Player;
 
 public class GridView extends View{
 
 	private Activity act;
 	private DamesControl dcontrol;
 	private Grid model;
-	int colored[] = {-1, -1};
+	ArrayList<Integer> colored;
 	private int select=-1;
 	Button [] tabBut = new Button[50];
 
@@ -50,12 +51,6 @@ public class GridView extends View{
 					if(dcontrol.selectable(idTail, dcontrol.getPlayer().getColor())){
 						// a piece that belongs to the player
 						if(select == idTail){
-							if(colored[0] != -1)
-								tabBut[colored[0]].setBackgroundColor(Color.BLACK);
-							colored[0] = -1;
-							if(colored[1] != -1)
-								tabBut[colored[1]].setBackgroundColor(Color.BLACK);
-							colored[1] = -1;
 							if(dcontrol.getPlayer().getColor() == com.dyndns.kebree.dames.model.Piece.Color.white)
 								tabBut[select].setBackgroundResource(R.drawable.white);
 							else 
@@ -69,28 +64,15 @@ public class GridView extends View{
 								else if(dcontrol.selectable(select, com.dyndns.kebree.dames.model.Piece.Color.black))
 									tabBut[select].setBackgroundResource(R.drawable.black);
 							}
-							if(colored[0] != -1){
-								tabBut[colored[0]].setBackgroundColor(Color.BLACK);
-								colored[0]=-1;
-							}
-							if(colored[1] != -1){
-								tabBut[colored[1]].setBackgroundColor(Color.BLACK);
-								colored[1]=-1;
-							}
 							v.setBackgroundColor(Color.RED);
 							select=idTail;
 							colored = dcontrol.getMovable(idTail);
-							if(colored[0] != -1){
-								tabBut[colored[0]].setBackgroundColor(Color.YELLOW);
-							}
-							if(colored[1] != -1){
-								tabBut[colored[1]].setBackgroundColor(Color.YELLOW);
+							for(int value : colored){
+								tabBut[value].setBackgroundColor(Color.YELLOW);
 							}
 						}
 					} else if(dcontrol.selectable(idTail,com.dyndns.kebree.dames.model.Piece.Color.none) && select != -1){
 						dcontrol.movePiece(select,idTail);
-						colored[0]=-1;
-						colored[1]=-1;
 						select = -1;
 					}
 
