@@ -71,6 +71,8 @@ public class DamesControl {
 		if(model.canEat(newSquare, diagHD[1]))
 			return false;
 		Log.i("i", "ended");
+		if(model.canPromote(newSquare))
+			model.promote(newSquare);
 		return true;
 	}
 
