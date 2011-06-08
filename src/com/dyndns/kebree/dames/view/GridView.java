@@ -56,6 +56,9 @@ public class GridView extends View{
 							else 
 								tabBut[select].setBackgroundResource(R.drawable.black);
 							select = -1;
+							for(int value : colored)
+								tabBut[value].setBackgroundColor(Color.BLACK);
+							colored.clear();
 						}else{
 							if(select != -1){
 								//redraw
@@ -117,7 +120,7 @@ public class GridView extends View{
 
 	public void gameEnded() {
 		TextView t = new TextView(act);
-		t.setText("Partie Terminée");
+		t.setText("Partie Terminï¿½e");
 		act.setContentView(t);
 
 	}

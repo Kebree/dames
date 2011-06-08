@@ -27,7 +27,7 @@ public class Grid {
 		listControl = new ArrayList<DamesControl>();
 		grid = new Piece[50];
 		for(int i=0; i<20; i++){
-			grid[i] = new Piece(Color.black, PieceType.pawn);
+			grid[i] = new Piece(Color.black, PieceType.queen);
 		}
 		for(int i=20; i<30; i++){
 			grid[i] = new Piece();
@@ -74,7 +74,6 @@ public class Grid {
 	public Piece[] getGrid(){
 		return grid;
 	}
-
 
 	/**
 	 * 
@@ -266,22 +265,67 @@ public class Grid {
 
 	private boolean canMoveQueen(int oldSquare, int newSquare){
 		int[] diag = getDiag(oldSquare, newSquare);
-		if(diag == null)
+		if(diag == null){
 			return false;
+		}
 
-		if(diag[0] == -1)
+		if(diag[0] == -1){
 			return false;
+		}
 
 		for(int i=0; i<diag.length; i++){
-			if(grid[diag[i]].getColor() != Color.none)
+			if(diag[i] == -1)
 				return false;
-			if(i==newSquare)
+			if(grid[diag[i]].getColor() != Color.none){
+				return false;
+			}
+			if(diag[i]==newSquare){
 				return true;
+			}
 		}	
 		return false;
 	}
+	
+	private boolean canEatQueen(int oldSquare, int newSquare){
+		int[] diag = getDiag(oldSquare, newSquare);
+		if(diag == null)
+			return false;
 
-	public boolean canEatPiece(int oldSquare, int newSquare){		
+		if(diag[0] == -1 || diag[1] == -1)
+			return false;
+		
+		int end=-1;
+		for(int i=0; i<diag.length; i++){
+			if(newSquare == diag[i]){
+				end = i;
+				break;
+			}
+			if(grid[diag[i]].getColor() != Color.none && diag[i+1] != newSquare){
+				return false;
+			}
+		}
+		
+		if(end < 1)
+			return false;
+		
+		if(diag[end] == -1)
+			return false;
+		
+		if(grid[diag[end]].getColor() != Color.none)
+			return false;
+		
+		if(grid[diag[end-1]].getColor() == grid[oldSquare].getColor() || grid[diag[end-1]].getColor() == Color.none)
+			return false;
+		/*foiré si : 
+		 *  - piece sur le chemin
+		 *  - arrivée non libre
+		 *  - piece a manger mauvaise couleur
+		 */
+		
+		return true;
+	}
+
+	private boolean canEatPiece(int oldSquare, int newSquare){		
 		int[] diag = getDiag(oldSquare, newSquare);
 		if(diag == null)
 			return false;
@@ -308,9 +352,9 @@ public class Grid {
 		Color color = grid[square].getColor();
 		if(color != Color.none){
 			grid[square] = new Piece(color, PieceType.queen);
+			gridChanged();
 		}
 	}
-
 
 	public boolean canMove(int oldSquare, int newSquare){
 		if(grid[oldSquare].getPtype() == PieceType.pawn)
@@ -323,6 +367,8 @@ public class Grid {
 	public boolean canEat(int oldSquare, int newSquare){
 		if(grid[oldSquare].getPtype() == PieceType.pawn)
 			return canEatPiece(oldSquare, newSquare);
+		if(grid[oldSquare].getPtype() == PieceType.queen)
+			return canEatQueen(oldSquare, newSquare);
 		return false;
 	}
 
@@ -343,7 +389,7 @@ public class Grid {
 	 * @param square the origin square
 	 * @return all the square where the piece can move
 	 */
-	public ArrayList<Integer> getMovable(int square) {
+	public ArrayList<Integer> getMovable(int square, boolean onlyEat) {
 		ArrayList<Integer> ret = new ArrayList<Integer>();
 		int[] diagHG = diagHG(square);
 		int[] diagHD = diagHD(square);
@@ -351,16 +397,24 @@ public class Grid {
 		int[] diagBD = diagBD(square);
 		if(grid[square].getPtype() == PieceType.queen){
 			for(int value : diagHG)
-				if(canMove(square, value))
+				if(canMove(square, value) && !onlyEat)
+					ret.add(value);
+				else if(canEat(square, value))
 					ret.add(value);
 			for(int value : diagBG)
-				if(canMove(square, value))
+				if(canMove(square, value) && !onlyEat)
+					ret.add(value);
+				else if(canEat(square, value))
 					ret.add(value);
 			for(int value : diagBD)
-				if(canMove(square, value))
+				if(canMove(square, value) && !onlyEat)
+					ret.add(value);
+				else if(canEat(square, value))
 					ret.add(value);
 			for(int value : diagHD)
-				if(canMove(square, value))
+				if(canMove(square, value) && !onlyEat)
+					ret.add(value);
+				else if(canEat(square, value))
 					ret.add(value);
 		}
 		if(canEat(square, diagHG[1]))
@@ -375,14 +429,14 @@ public class Grid {
 			return ret;
 		if(grid[square].getPtype() == PieceType.pawn){
 			if(grid[square].getColor() == Color.black){
-				if(canMove(square, diagBG[0]))
+				if(canMove(square, diagBG[0]) && !onlyEat)
 					ret.add(diagBG[0]);
-				if(canMove(square, diagBD[0]))
+				if(canMove(square, diagBD[0]) && !onlyEat)
 					ret.add(diagBD[0]);
 			} else if(grid[square].getColor() == Color.white){
-				if(canMove(square, diagHG[0]))
+				if(canMove(square, diagHG[0]) && !onlyEat)
 					ret.add(diagHG[0]);
-				if(canMove(square, diagHD[0]))
+				if(canMove(square, diagHD[0]) && !onlyEat)
 					ret.add(diagHD[0]);
 			}
 		}
@@ -392,24 +446,14 @@ public class Grid {
 
 	public void eatPiece(int select, int newSquare) {
 		Color color = grid[select].getColor();
-		int[] diag = diagBG(select);
-		if(isIn(newSquare, diag))
-			grid[diag[0]]=new Piece();
-		else {
-			diag = diagBD(select);
-			if(isIn(newSquare, diag))
-				grid[diag[0]]=new Piece();
-			else {
-				diag = diagHG(select);
-				if(isIn(newSquare, diag))
-					grid[diag[0]]=new Piece();
-				else{
-					diag = diagHD(select);
-				}
-			}
+		int[] diag = getDiag(select, newSquare);
+		int end=-1;
+		for(int i=0; i<diag.length; i++){
+			if(diag[i]==newSquare)
+				end = i;
 		}
 
-		grid[diag[0]]=new Piece();
+		grid[diag[end-1]]=new Piece();
 		if(color != Color.none){
 			int nbPieces = pieces.get(color);
 			nbPieces--;

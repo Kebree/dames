@@ -20,6 +20,7 @@ public class DamesControl {
 	private Grid model;
 	private Player[] players;
 	private int currentPlayer;
+	private boolean played = false;
 
 	/**
 	 * Constructor
@@ -70,9 +71,10 @@ public class DamesControl {
 		int[] diagHD = model.diagHD(newSquare);
 		if(model.canEat(newSquare, diagHD[1]))
 			return false;
-		Log.i("i", "ended");
-		if(model.canPromote(newSquare))
+		if(model.canPromote(newSquare)){
+			Log.i("i","Promote called "+newSquare+" "+model.getPiece(newSquare).getColor());
 			model.promote(newSquare);
+		}
 		return true;
 	}
 
@@ -84,13 +86,19 @@ public class DamesControl {
 	 */
 	public void movePiece(int select, int newSquare) {
 		if(model.canEat(select, newSquare)){
-			Log.i("i", "canEat ? : "+model.canEat(select, newSquare));
 			model.eatPiece(select, newSquare);
-			if(ended(newSquare))
+			played = true;
+			if(ended(newSquare)){
 				currentPlayer = (currentPlayer+1)%2;
-		} else if(model.canMove(select, newSquare)){
+				played = false;
+			}
+		} else if(model.canMove(select, newSquare) && !played){
 			model.movePiece(select, newSquare);
 			currentPlayer = (currentPlayer+1)%2;
+			if(model.canPromote(newSquare)){
+				Log.i("i","Promote called "+newSquare+" "+model.getPiece(newSquare).getColor());
+				model.promote(newSquare);
+			}
 		}
 
 	}
@@ -111,7 +119,7 @@ public class DamesControl {
 	 * @return an array with all available squares 
 	 */
 	public ArrayList<Integer> getMovable(int square) {
-		return model.getMovable(square);		
+		return model.getMovable(square, played);		
 	}
 
 	public Player getPlayer(){
