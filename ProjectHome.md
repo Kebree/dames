@@ -1,0 +1,1 @@
+Jeu de dames pour appareils android >2.1
